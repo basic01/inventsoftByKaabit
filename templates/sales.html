@@ -1,0 +1,114 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Inventsoft - Ventas</title>
+    <link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}">
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <link rel="stylesheet" href="{% static 'css/home.css' %}">
+    <link rel="stylesheet" href="{% static 'css/table.css' %}">
+    <link rel="stylesheet" href="{% static 'css/modal.css' %}">
+    <link href="https://fonts.googleapis.com/css?family=Sarabun:200,300,400,700,800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.5.0/css/all.css" integrity="sha384-B4dIYHKNBt8Bc12p+WXckhzcICo0wtJAoU8YZTY5qE0Id1GSseTk6S+L3BlXeVIU" crossorigin="anonymous">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/dom-to-image/2.6.0/dom-to-image.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/1.5.3/jspdf.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+</head>
+
+<body>
+
+</body>
+
+<script src="{% static 'js/design_patterns/factoryUserView.js' %}"></script>
+<script src="{% static 'js/design_patterns/singletonUser.js' %}"></script>
+<script src="{% static 'js/templates/nav.js' %}"></script>
+<script src="{% static 'js/templates/tables/sales.js' %}"></script>
+<script src="{% static 'js/templates/rows/sales.js' %}"></script>
+<script src="{% static 'js/functions.js' %}"></script>
+<script src="{% static 'js/styleFunctions.js' %}"></script>
+
+<script>
+    (async function(){
+        
+        document.body.innerHTML += showOptionModal('¿Eliminar registro?');
+        document.body.innerHTML += includeModal();
+
+    // ------------------------------------------------
+        // Get user
+        const user = await getSingleton();
+        
+    // ------------------------------------------------
+        // Get nav specific options for that user type
+        document.body.innerHTML += ViewNav(user);
+
+    // ------------------------------------------------
+        // Show notitification count in nav-bar
+        showNotificationCount();
+    
+    // ------------------------------------------------
+        // Get table data
+        async function getSalesData(url) {
+            const response = await fetch(url);
+            const data = await response.json();
+            return data.sales;
+        }
+        
+        let data;
+        if(getUserType(user) == 0 || getUserType(user) == 1){
+            console.log('si')
+            data = await getSalesData('http://127.0.0.1:8000/fetch_sales/1/');
+        } else if(getUserType(user) == 2){
+            console.log(user)
+            console.log('ni')
+            data = await getSalesData(`http://127.0.0.1:8000/fetch_sales/2/${user.emp_key}/`);
+        }
+
+
+    // ------------------------------------------------
+        // Show table data and specific options for that user type
+        document.body.innerHTML += factoryTableViewSales(user, data);
+
+        const DELETEBUTTONS = document.querySelectorAll('#delete');
+
+        for(let deleteButton of DELETEBUTTONS){
+            deleteButton.addEventListener('click', async(e) => {
+                e.preventDefault();
+
+                changeClass('modal-back-show', 'modal-options');
+                
+                document.getElementById('ok').onclick = async function(){
+
+                    changeClass('modal-back-show', 'modal-options');
+                
+                    const saleKey = deleteButton.parentElement.parentElement.firstChild.nextElementSibling.innerText;
+                    console.log(saleKey)
+                    try{
+                        const data = await sendData(`http://127.0.0.1:8000/delete_sale/${saleKey}/`);
+                        console.log(data);
+                        if (data.status === 200){
+                            deleteButton.parentElement.parentElement.remove();
+                            showSuccessModal('Registro eliminado <br> exitosamente', 'fas fa-check-circle');
+                        } else {
+                            showSuccessModal('Ocurrió un error, <br> intenta de nuevo', 'fas fa-times');
+                        }
+                    } catch (error) {
+                        console.log(error)
+                    }
+                }
+            })
+        }
+
+
+
+    // -----------------------------
+        // Get CSV
+        getCSV(`http://127.0.0.1:8000/csv_save_to_disk/SALES/`);
+
+    })();
+
+</script>
+
+</html>

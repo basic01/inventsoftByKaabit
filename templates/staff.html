@@ -1,0 +1,114 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Inventsoft - Personal</title>
+    <link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}">
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <link rel="stylesheet" href="{% static 'css/home.css' %}">
+    <link rel="stylesheet" href="{% static 'css/table.css' %}">
+    <link rel="stylesheet" href="{% static 'css/modal.css' %}">
+    <link href="https://fonts.googleapis.com/css?family=Sarabun:200,300,400,700,800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.5.0/css/all.css" integrity="sha384-B4dIYHKNBt8Bc12p+WXckhzcICo0wtJAoU8YZTY5qE0Id1GSseTk6S+L3BlXeVIU" crossorigin="anonymous">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/dom-to-image/2.6.0/dom-to-image.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/1.5.3/jspdf.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+</head>
+
+<body>
+
+</body>
+
+<script src="{% static 'js/design_patterns/factoryUserView.js' %}"></script>
+<script src="{% static 'js/design_patterns/singletonUser.js' %}"></script>
+<script src="{% static 'js/templates/nav.js' %}"></script>
+<script src="{% static 'js/templates/tables/staff.js' %}"></script>
+<script src="{% static 'js/templates/rows/staff.js' %}"></script>
+<script src="{% static 'js/functions.js' %}"></script>
+<script src="{% static 'js/styleFunctions.js' %}"></script>
+
+<script>
+    (async function(){
+        document.body.innerHTML += showOptionModal('¿Eliminar registro?');
+        document.body.innerHTML += includeModal();
+
+        localStorage.removeItem('staffKey');
+    // ------------------------------------------------
+        // Get user
+        const user = await getSingleton();
+        
+    // ------------------------------------------------
+        // Get nav specific options for that user type
+        document.body.innerHTML += ViewNav(user);
+
+    // ------------------------------------------------
+        // Show notitification count in nav-bar
+        showNotificationCount();
+
+    // ------------------------------------------------
+        // Get table data
+        async function getStaffData() {
+            const response = await fetch(`/fetch_staff/${user.emp_key}/`);
+            const data = await response.json();
+            return data.staff;
+        }
+
+        const data = await getStaffData();
+
+    // ------------------------------------------------
+        // Show table data and specific options for that user type
+        document.body.innerHTML += factoryTableViewStaff(user, data);
+
+        async function sendData(url){
+			const response = await fetch(url)
+			const data = await response.json()
+			return data;
+		}
+
+        const DELETEBUTTONS = document.querySelectorAll('#delete');
+
+        for(let deleteButton of DELETEBUTTONS){
+            deleteButton.addEventListener('click', async(e) => {
+                e.preventDefault();
+                
+                changeClass('modal-back-show', 'modal-options');
+                
+                document.getElementById('ok').onclick = async function(){
+
+                    changeClass('modal-back-show', 'modal-options');
+                    
+                    const staffKey = deleteButton.parentElement.parentElement.firstChild.nextElementSibling.innerText;
+
+                    try{
+                        const data = await sendData(`http://127.0.0.1:8000/delete_staff/${staffKey}/`);
+                        if (data.status === 200){
+                            // alert('Se elimino el registro')
+                            deleteButton.parentElement.parentElement.remove();
+                            showSuccessModal('Registro eliminado <br> exitosamente', 'fas fa-check-circle');
+                        } else {
+                            // alert('Algo salio mal')
+                            showSuccessModal('Ocurrió un error, <br> intenta de nuevo', 'fas fa-times');
+                        }
+                    } catch (error) {
+                        console.log(error)
+                    }
+                }
+            })
+        }
+
+        const EDITBUTTONS = document.querySelectorAll('.edit-row');
+        for(let editButton of EDITBUTTONS){
+            editButton.addEventListener('click', async(e) => {
+                const staffKey = editButton.parentElement.parentElement.firstChild.nextElementSibling.innerText;
+                localStorage.setItem('staffKey', staffKey);
+            })
+        }
+
+    })();
+
+</script>
+
+</html>

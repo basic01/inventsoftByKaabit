@@ -1,0 +1,95 @@
+.result-title{
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    text-align: center;
+}
+
+.row-form-container{
+    display: flex;
+    justify-content: center;
+    width: 100%;
+    margin: 0;
+}
+.col-form-container{
+    display: flex;
+    justify-content: center;
+}
+
+.form-container{
+    margin-top: 1em;
+    width: 100%;
+}
+
+.form input[type="text"], .form input[type="number"], .form input[type="email"], .form input[type="password"], .form textarea, .form select{
+    border-radius: 20px;
+    width: 100%;
+    height: 2.5em;
+    padding: 5px 20px;
+    border: none;
+    margin-bottom: 1em;
+    box-shadow: 0px 2px 5px 2px rgba(0,0,0,.09);
+    display: block;
+    width: 100%;
+    border: 1px solid rgba(0,0,0,.15);
+    /* background-color:#F5F5F5; */
+    font-weight: 400;
+    color: rgba(0,0,0,.8);
+
+}
+
+.form textarea{
+    border-radius: 7px;
+    height: 4em;
+    resize: none;
+}
+
+.form select{
+    cursor: pointer;
+    border-radius: 7px;
+}
+
+.type-user{
+    margin-bottom: .5em;
+    float: left;
+}
+    .type-user p{
+        font-weight: 600;
+        margin-bottom: .5em;
+    }
+
+    .type-user .option-user{
+        float: left;
+        width: 100%;
+        display: flex;
+        flex-direction: row;
+        box-sizing: border-box;
+        padding-left: 25%;
+        margin-bottom: 5px;
+
+    }
+        
+        .option-user input[type="radio"]{
+            cursor: pointer;
+        }
+
+        .option-user span{
+            margin-left: 5px;
+            color: rgba(0,0,0,.7);
+            font-weight: 300;
+            margin-top: -3px;
+            float: left;
+        }
+
+.btn-submit{
+    width: 100%;
+    margin-top: 1em;
+    /* background-color: #F378B9; */
+    background: linear-gradient(90deg, #f47dbb 0%, #F79FCD 70%, #F9B9DB 100%);
+    box-shadow: 0px 2px 5px 2px rgba(0,0,0,.1);
+    color: #fff;
+}
+.secondary-btn{
+    width: 100%;
+}
+
